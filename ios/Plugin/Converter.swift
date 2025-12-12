@@ -12,6 +12,7 @@ import CoreLocation
 class Converter {
     enum ValidationError: Error {
         case apiKeyNotDefined
+        case apiKeyInvalid
         case incorrectAmount
         case incorrectProductSku
         case incorrectProductItemQty
@@ -28,7 +29,9 @@ class Converter {
             throw ValidationError.apiKeyNotDefined
         }
         
-        let yamConfig = AppMetricaConfiguration.init(apiKey: apiKey)!
+        guard let yamConfig = AppMetricaConfiguration.init(apiKey: apiKey) else {
+          throw ValidationError.apiKeyInvalid
+        }
         
         if let handleFirstActivationAsUpdate = config["handleFirstActivationAsUpdate"] as? Bool {
             yamConfig.handleFirstActivationAsUpdate = handleFirstActivationAsUpdate
@@ -387,6 +390,8 @@ extension Converter.ValidationError: LocalizedError {
         switch self {
         case .apiKeyNotDefined:
             return NSLocalizedString("Api key not defined", comment: "Api key not defined")
+        case .apiKeyInvalid:
+            return NSLocalizedString("Api key is invalid", comment: "Api key is invalid or malformed")
         case .incorrectAmount:
             return NSLocalizedString("Incorrect amount", comment: "Incorrect amount value")
         case .incorrectProductSku:
